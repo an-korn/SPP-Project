@@ -1,0 +1,10 @@
+hosts:
+  "Default":
+    paths:
+      "/api":
+        proxy.reverse.url: "http://api:3000/api"
+        proxy.preserve-host: ON
+      "/":
+        proxy.reverse.url: "http://app:3000"
+        proxy.preserve-host: ON
+        proxy.websocket: ON

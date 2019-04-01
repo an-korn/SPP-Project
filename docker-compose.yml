@@ -1,0 +1,53 @@
+version: "3.7"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: config/development/api.Dockerfile
+    volumes:
+      - ./api:/app
+    command: yarn start
+    environment:
+      DEVISE_JWT_SECRET_KEY: deab299ab0569d6b581a24ee2ac41d8a67471f4daf141cc4f7c3aec53c3bbe7974678ce93c9f4cad9912269a7b57af04a29ad2bad236a7132725afef377e2ed8
+      GOOGLE_CLIENT_ID: 793996297325-qoquhe2ggllemu7mg74i7fuj8k081eu2.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: 7LHsxtJQ7DMSvJ0sJS0Eoj_c
+      FRONTEND_APP_URL: http://localhost:3000
+    tty: true
+    stdin_open: true
+    depends_on:
+      - db
+  db:
+    image: mysql:5.7
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: 'org_manager'
+      MYSQL_USER: 'root'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_ROOT_PASSWORD: ''
+    ports:
+      - '3306:3306'
+    volumes:
+     - my-db:/var/lib/mysql
+    logging:
+      driver: none
+  app:
+    build:
+      context: .
+      dockerfile: config/development/app.Dockerfile
+    volumes:
+      - ./app:/app
+    command: yarn start
+    environment:
+      REACT_APP_API_URL: http://localhost:3000/api/v1
+  h2o:
+    image: datarockets/h2o
+    volumes:
+      - ./config/development/h2o.yml:/h2o/config.yml
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+      - app
+volumes:
+  my-db:

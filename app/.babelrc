@@ -1,0 +1,26 @@
+{
+  "presets": [
+    "babel-preset-react-app",
+  ],
+  "plugins": [
+    ["module-resolver", {
+      "alias": {
+        "src": "./src",
+      },
+    }],
+
+    ["transform-react-pug", {
+      "classAttribute": "styleName",
+    }],
+
+    "react-require",
+
+    ["transform-jsx-css-modules", {
+      "pathToStyles": "^\\.\\/styles\\.module\\.scss$",
+    }],
+
+    ["transform-jsx-classname-components", {
+      "objects": ["React"],
+    }],
+  ],
+}

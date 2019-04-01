@@ -1,0 +1,6 @@
+{
+  "sequelize": {
+  	"dialect": "mysql",
+	"secret": "password"
+  }
+}
