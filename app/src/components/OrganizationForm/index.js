@@ -2,7 +2,7 @@ import React from 'react'
 import { Field, reduxForm } from 'redux-form'
 
 const OrganizationForm = props => {
-  const { handleSubmit, pristine, reset, submitting, update, exist } = props
+  const { handleSubmit, pristine, submitting } = props
   return (
     <form onSubmit={handleSubmit}>
       <div>
@@ -17,25 +17,19 @@ const OrganizationForm = props => {
         </div>
       </div>
       <div>
-        <label>Owner Email</label>
+        <label>Domain</label>
         <div>
           <Field
-            name="email"
+            name="domain"
             component="input"
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="Organization domain"
           />
         </div>
       </div>
       <div>
         <button type="submit" disabled={pristine || submitting}>
-          Submit
-        </button>
-        <button type="button" disabled={pristine || submitting} onClick={update}>
-          Update
-        </button>
-        <button type="button" disabled={pristine || submitting} onClick={reset}>
-          Clear Values
+          Add Organization
         </button>
       </div>
     </form>
@@ -43,5 +37,5 @@ const OrganizationForm = props => {
 }
 
 export default reduxForm({
-  form: 'organization' // a unique identifier for this form
+  form: 'organization'
 })(OrganizationForm)

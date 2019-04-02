@@ -1,25 +1,18 @@
 import { connect } from 'react-redux'
 
-import FormContainer from 'src/containers/FormContainer'
-import OrganizationsContainer from 'src/containers/OrganizationsContainer'
+import Welcome from 'src/containers/Welcome'
 
 function HomePage(props) {
   return pug`
     .wrapper
-      FormContainer
-
-      if props.organization.name
-        span Organization for update: 
-        span= props.organization.name
-
-      OrganizationsContainer
+      if !props.token
+        Welcome
   `
 }
 
 
-const mapStateToProps = ({ session, organization }) => ({
-  token: session.token,
-  organization: organization.organization
+const mapStateToProps = ({ session }) => ({
+  token: session.token
 })
 
 export default connect(mapStateToProps)(HomePage)
