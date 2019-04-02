@@ -1,3 +1,0 @@
-#!/bin/bash
-
-docker attach $(docker-compose ps | grep api | grep "rails s" | cut -d " " -f 1)
