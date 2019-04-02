@@ -7,7 +7,7 @@ const googleConfig = {
 };
 
 const defaultScope = [
-  'https://www.googleapis.com/auth/plus.me',
+  'https://www.googleapis.com/auth/userinfo.profile',
   'https://www.googleapis.com/auth/userinfo.email',
 ];
 
@@ -25,6 +25,16 @@ module.exports = {
     return {
       tokens: data.tokens
     };
+  },
+
+  getClient: function(tokens) {
+    const auth = createConnection();
+    auth.setCredentials(tokens);
+    const client = google.oauth2({
+      auth: auth,
+      version: 'v2'
+    });
+    return client;
   }
 };
 
