@@ -22,7 +22,9 @@ class ProjectsDropdown extends Component {
       this.getProjects();
     }, 1000)
     setTimeout(() => {
-      this.getStories();
+      this.props.projects.map(project => {
+        this.getStories();
+      })
     }, 500)
   }
 
@@ -40,16 +42,6 @@ class ProjectsDropdown extends Component {
     axios.get(`http://localhost:3001/api/v1/project?user=${this.state.user}`)
       .then(response => {
         this.props.setProjects(response.data);
-      })
-      .catch(function (error) {
-        window.alert(error.response.data.errors);
-      });
-  }
-
-  getStories = () => {
-    axios.get(`http://localhost:3001/api/v1/story?user=${this.state.user}`)
-      .then(response => {
-        this.props.setStories(response.data);
       })
       .catch(function (error) {
         window.alert(error.response.data.errors);
@@ -76,8 +68,7 @@ class ProjectsDropdown extends Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-  setProjects: (projects) => dispatch({ type: 'SET_PROJECT_DATA', projects: projects }),
-  setStories: (stories) => dispatch({ type: 'SET_STORY_DATA', stories: stories }),
+  setProjects: (projects) => dispatch({ type: 'SET_PROJECT_DATA', projects: projects })
 })
 
 const mapStateToProps = ({ session, project }) => ({

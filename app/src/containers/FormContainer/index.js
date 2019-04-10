@@ -1,4 +1,4 @@
-import { formValueSelector } from 'redux-form'
+import { formValueSelector } from 'redux-form';
 import { connect } from 'react-redux';
 import PropTypes from "prop-types";
 import axios from 'axios';
