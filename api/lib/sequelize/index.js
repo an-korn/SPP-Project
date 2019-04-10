@@ -1,8 +1,8 @@
 const Sequelize = require('sequelize');
 const conf = require('../../config/db');
 const UserModel = require('../../models/user');
-const OrganizationModel = require('../../models/organization');
-const NoteModel = require('../../models/note')
+const ProjectModel = require('../../models/project');
+const StoryModel = require('../../models/story')
 
 const sequelize = new Sequelize(conf.database, conf.user, conf.password, {
   host: "127.0.0.1",
@@ -15,17 +15,15 @@ const sequelize = new Sequelize(conf.database, conf.user, conf.password, {
 });
 
 const User = UserModel(sequelize, Sequelize);
-const Organization = OrganizationModel(sequelize, Sequelize);
-const Note = NoteModel(sequelize, Sequelize);
+const Project = ProjectModel(sequelize, Sequelize);
+const Story = StoryModel(sequelize, Sequelize);
 
-User.hasMany(Note);
-User.belongsToMany(Organization, {through: 'UserOrganization'});
+User.hasMany(Project);
 
-Organization.hasMany(Note);
-Organization.belongsToMany(User, {through: 'UserOrganization'});
+Project.hasMany(Story);
+Project.belongsTo(User);
 
-Note.belongsTo(User);
-Note.belongsTo(Organization);
+Story.belongsTo(Project);
 
 
 sequelize.sync()
@@ -35,6 +33,6 @@ sequelize.sync()
 
 module.exports = {
   User,
-  Organization,
-  Note
+  Project,
+  Story
 };

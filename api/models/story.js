@@ -1,16 +1,17 @@
 module.exports = (sequelize, type) => (
-  sequelize.define('organization', {
+  sequelize.define('story', {
 	id : {
 	  type: type.INTEGER,
 	  primaryKey: true,
 	  autoIncrement: true
 	},
-	name: {
-	  type: type.STRING,
+	description: {
+	  type: type.TEXT,
 	  allowNull: false
 	},
-	domain: {
-	  type: type.STRING,
+	stage: {
+	  type: type.ENUM('new', 'in progress', 'testing', 'delivered'),
+	  defaultValue: 'new',
 	  allowNull: false
 	}
   })

@@ -1,4 +1,4 @@
-const {User, Note} = require('../lib/sequelize');
+const {Story} = require('../lib/sequelize');
 
 exports.get = function(req, resp) {
 

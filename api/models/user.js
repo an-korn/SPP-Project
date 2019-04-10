@@ -13,16 +13,26 @@ module.exports = (sequelize, type) => {
 	refresh_token: type.STRING
   })
 
-  User.add = function(email, access_token, refresh_token) {
-  	console.log("Here", typeof email, typeof access_token, typeof refresh_token);
-  	User.findOrCreate(
-  	  { 
-  	  	where: {email: email},
-  	    defaults: {access_token: access_token, refresh_token: refresh_token}
-  	  }
-  	)
-	  .then(user => console.log(user))
-	  .catch(err => console.log("ERROR ADDING USER"));
+  User.add = (email, access_token, refresh_token) => {
+  	return new Promise((resolve, reject) => {
+	  User.findOrCreate(
+	  	{ 
+	  	  where: {email: email},
+	  	  defaults: {access_token: access_token, refresh_token: refresh_token}
+	  	}
+	  )
+		.then(res => {
+          User.update({access_token: access_token, refresh_token: refresh_token}, { where: { id: res[0].id } })
+          	.then(result => resolve({ user: result}))
+	    })
+	})
+  }
+
+  User.findByToken = (access_token) => {
+  	return new Promise((resolve, reject) => {
+	  User.findOne({where: {access_token}})
+	    .then(user => resolve(user))
+	})
   }
 
   return User;

@@ -1,46 +1,73 @@
 import { formValueSelector } from 'redux-form'
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
+import PropTypes from "prop-types";
 import axios from 'axios';
 
-import OrganizationForm from 'src/components/OrganizationForm';
+import ProjectForm from 'src/components/ProjectForm';
 
 const mapStateToProps = (state) => {
-  const selector = formValueSelector('organization');
-  const organization = selector(state, 'organizationName', 'domain')
+  const selector = formValueSelector('project');
+  const project = selector(state, 'projectName')
 
   return {
-    organization
+    project
   }
 }
 
+const mapDispatchToProps = dispatch => ({
+  updateProject: (project) => dispatch({ type: 'UPDATE_PROJECT', project: project }),
+  createProject: (project) => dispatch({type: 'ADD_PROJECT', project: project})
+})
+
 class FormContainer extends React.Component {
-  get organization() {
-    return this.props.organization;
+  get project() {
+    return this.props.project;
   }
 
   get body() {
-  	return {organization: this.organization }
+  	return {project: this.project, user: this.props.user }
   }
 
-  onOrganizationSubmit = () => {
-  	axios.post(`${process.env.REACT_APP_API_URL}/organizations`, this.body)
-	  .then(response => {
-        //this.props.addOrganization(response.data)
-	  })
-	  .catch(function (error) {
-	    window.alert(error.response.data.errors);
-	  });
+  get update() {
+    return this.props.update;
+  }
+
+  createProject = () => {
+    axios.post(`http://localhost:3001/api/v1/project`, this.body)
+      .then(response => {
+        this.props.createProject(response.data);
+        this.props.onClose();
+      })
+      .catch(function (error) {
+        window.alert(error.response.data.errors);
+      });
+  }
+
+  updateProject = () => {
+    axios.put(`http://localhost:3001/api/v1/project/${this.props.project_id}`, this.body)
+      .then(response => {
+        this.props.updateProject(response.data);
+        this.props.onClose();
+      })
+      .catch(function (error) {
+        window.alert(error.response.data.errors);
+      });
+  }
+
+  onProjectSubmit = () => {
+  	return this.update ? this.updateProject() : this.createProject();
   }
 
   render() {
   	return(
       <div>
-  	    <OrganizationForm onSubmit={this.onOrganizationSubmit} update={this.updateOrganization} />
+  	    <ProjectForm update={this.update} onSubmit={this.onProjectSubmit} />
       </div>
   	)
   }
 }
 
 export default connect(
-  mapStateToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(FormContainer);

@@ -1,4 +1,5 @@
 import { Link, LinkExternal } from 'src/routes'
+import ProjectsDropdown from 'src/components/ProjectsDropdown'
 
 import './styles.module.scss'
 
@@ -12,6 +13,7 @@ function Navigation(props) {
 
       else
         Link(to="AUTH_LOGOUT") Logout
+        ProjectsDropdown
   `
 }
 

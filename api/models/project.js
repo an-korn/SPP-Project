@@ -1,13 +1,13 @@
 module.exports = (sequelize, type) => (
-  sequelize.define('note', {
+ sequelize.define('project', {
 	id : {
 	  type: type.INTEGER,
 	  primaryKey: true,
 	  autoIncrement: true
 	},
-	text: {
-	  type: type.TEXT,
+	name: {
+	  type: type.STRING,
 	  allowNull: false
 	}
   })
-);
+)
