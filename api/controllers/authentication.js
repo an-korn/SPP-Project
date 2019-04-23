@@ -1,12 +1,12 @@
 const oauth = require('../lib/google_oauth2');
 const {User, Organization} = require('../lib/sequelize');
 
-exports.get = function (req, resp) {
+exports.get = function(req, resp) {
   const urlGoogle = oauth.urlGoogle();
   resp.redirect(urlGoogle);
 };
 
-exports.callback = function (req, resp) {
+exports.callback = function(req, resp) {
   const code = req.query.code;
   oauth.getGoogleAccountFromCode(code).then(data => {
   	oauth.getClient(data.tokens).userinfo.get(

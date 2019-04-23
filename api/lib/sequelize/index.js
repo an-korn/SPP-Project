@@ -10,7 +10,10 @@ const sequelize = new Sequelize(conf.database, conf.user, conf.password, {
   operatorsAliases: false,
   port: "3306",
   pool: {
-	max: conf.pool.max
+    max: conf.pool.max,
+    min: 0,
+    idle: 10000,
+    acquire: 30000
   }
 });
 

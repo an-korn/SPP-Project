@@ -1,49 +1,49 @@
 const {Project, User} = require('../lib/sequelize');
 
-exports.get = function(req, resp) {
-  const {user} = req.query;
+exports.get = function(io, data, action) {
+  const {user} = data;
   User.findByPk(parseInt(user))
     .then(user => {
       user.getProjects()
         .then(projects => {
-          resp.status(200).send(projects)
+          io.emit(action, projects)
         });
     })
-    .catch(err => resp.send(400, {errors: "There is no such User"}))
+    .catch(err => io.emit(action, {errors: "There is no such User"}))
 };
 
-exports.getById = function(req, resp) {
-  console.log('HEllo')
-  Project.findByPk(parseInt(req.params.id))
-    .then(project => resp.send(200, project))
-    .catch(err => resp.send(404, {errors: "There is no such Project"}))
+exports.getById = function(io, data, action) {
+  const {id} = data
+  Project.findByPk(parseInt(id))
+    .then(project => io.emit(action, project))
+    .catch(err => io.emit(action, {errors: "There is no such Project"}))
 };
 
-exports.add = function(req, resp) {
-  const {project, user} = req.body;
+exports.add = function(io, data, action) {
+  const {project, user} = data;
   Project.create({name: project})
     .then(project => {
       User.findByPk(parseInt(user))
         .then(user => {
-          project.setUser(user).then(_ => resp.status(200).send(project));
+          project.setUser(user).then(_ => io.emit(action, project));
         })
-        .catch(err => resp.send(400, {errors: "There is no such User"}))
+        .catch(err => io.emit(action, {errors: "There is no such User"}))
     })
 };
 
-exports.delete = function(req, resp) {
-  Project.findByPk(parseInt(req.params.id))
+exports.delete = function(io, data, action) {
+  Project.findByPk(parseInt(data.id))
     .then(project => {
-      if (!project) resp.status(404).send({errors: "No such Project"});
-      project.destroy().then(_ =>  resp.send(200, project));
+      if (!project) io.emit(action, {errors: "No such Project"});
+      project.destroy().then(_ =>  io.emit(action, project));
     })
 };
 
-exports.put = function(req, resp) {
-  const name = req.body.project;
-  Project.findByPk(parseInt(req.params.id))
+exports.put = function(io, data, action) {
+  const {name,id} = data;
+  Project.findByPk(parseInt(id))
     .then(project => {
-      if (!project) resp.status(404).send({errors: "No such Project"});
-      project.update({name: name}).then(_ =>  resp.send(200, project));
+      if (!project) io.emit(action, {errors: "No such Project"});
+      project.update({name: name}).then(_ =>  io.emit(action, project));
     })
 };

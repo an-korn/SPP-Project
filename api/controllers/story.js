@@ -1,44 +1,45 @@
 const {Story, Project} = require('../lib/sequelize');
 
-exports.get = function(req, resp) {
-  const {project} = req.query;
+exports.get = function(io, data, action) {
+  const {project} = data;
   Project.findByPk(parseInt(project))
     .then(project => {
       project.getStories()
         .then(stories => {
           const response = stories.map(story => story.dataValues)
-          resp.status(200).send(response)
+          io.emit(action, response)
         })
     })
-    .catch(err => resp.send(400, {errors: "There is no such Project"}))
+    .catch(err => io.emit(action, {errors: "There is no such Project"}))
 };
 
-exports.add = function(req, resp) {
-  const {story, project} = req.body;
+exports.add = function(io, data, action) {
+  const {story, project} = data;
+  console.log(data)
   Story.create({description: story.description, stage: story.stage})
     .then(story => {
       Project.findByPk(parseInt(project))
         .then(project => {
-          story.setProject(project).then(_ => resp.status(200).send(story));
+          story.setProject(project).then(_ => io.emit(action, story));
         })
-        .catch(err => resp.send(400, {errors: "There is no such Project"}))
+        .catch(err => io.emit(action, {errors: "There is no such Project"}))
     })
 };
 
-exports.delete = function(req, resp) {
-  Story.findByPk(parseInt(req.params.id))
+exports.delete = function(io, data, action) {
+  const {id} = data
+  Story.findByPk(parseInt(id))
     .then(story => {
-      if (!story) resp.status(404).send({errors: "No such Story"});
-      story.destroy().then(_ =>  resp.send(200, story));
+      if (!story) io.emit(action, {errors: "No such Story"});
+      story.destroy().then(_ =>  io.emit(action, story));
     })
 };
 
-exports.put = function(req, resp) {
-  const {description, stage} = req.body;
-  console.log(req.params.id);
-  Story.findByPk(parseInt(req.params.id))
+exports.put = function(io, data, action) {
+  const {description, stage, id} = data;
+  Story.findByPk(parseInt(id))
     .then(story => {
-      if (!story) resp.status(404).send({errors: "No such Story"});
-      story.update({description: description, stage: stage}).then(_ =>  resp.send(200, story));
+      if (!story) io.emit(action, {errors: "No such Story"});
+      story.update({description: description, stage: stage}).then(_ =>  io.emit(action, story));
     })
 };
