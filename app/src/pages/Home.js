@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import './styles.module.scss';
 
 import Welcome from 'src/containers/Welcome'
+import socket from 'src/helpers/socket'
 
 function HomePage(props) {
   return pug`

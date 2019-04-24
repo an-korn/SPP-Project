@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
 import injectSheet from "react-jss";
-import axios from 'axios';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { formValueSelector } from 'redux-form';
@@ -13,44 +12,43 @@ import Story from 'src/components/Story';
 import StoryForm from 'src/components/StoryForm';
 import StoryContainer from '../StoryContainer';
 import styles from './styles';
+import actions from 'src/actions';
 
 class ProjectContainer extends Component {
   state = {
-    show: false
+    show: false,
+    project: null,
+    stories: null
+  }
+
+  callback = (data) => {
+    this.setState({project: null})
+  }
+
+  createCallback = (data) => {
+    this.props.getStories(this.project_id)
+  }
+
+  setProject = (project) => {
+    this.setState({project: project})
+  }
+
+  setStories = (stories) => {
+    this.setState({stories: stories})
+  }
+
+  componentWillMount() {
+    this.props.subscribeGetProject(this.setProject);
+    this.props.subscribeGetStories(this.setStories);
+    this.props.subscribeDeleteProject(this.callback);
+    this.props.subscribeCreateStory(this.createCallback);
   }
 
   componentDidMount() {
-    this.getStories();
-  }
-
-  deleteProject = () => {
-    axios.delete(`http://localhost:3001/api/v1/project/${this.props.project}`)
-      .then(response => {
-        this.props.deleteProject(this.props.project);
-      })
-      .catch(function (error) {
-        window.alert(error.response.data.errors);
-      });
-  }
-
-  createStory = () => {
-    axios.post(`http://localhost:3001/api/v1/story`, {story: this.props.story, project: this.props.project})
-      .then(response => {
-        this.props.addStory(response.data);
-      })
-      .catch(function (error) {
-        window.alert(error.response.data.errors);
-      });
-  }
-
-  getStories = () => {
-    axios.get(`http://localhost:3001/api/v1/story?project=${this.props.project}`)
-      .then(response => {
-        this.props.setStories(response.data);
-      })
-      .catch(function (error) {
-        window.alert(error.response.data.errors);
-      });
+    this.props.getProject(this.project_id)
+    setTimeout(() => {
+      this.props.getStories(this.project_id);
+    }, 1000)
   }
 
   handleToggleStoryForm = () => {this.setState({ show: !this.state.show })}
@@ -59,30 +57,26 @@ class ProjectContainer extends Component {
     return this.props.project;
   }
 
-  get project() {
-    return this.props.projects.find(project => project.id == this.project_id)
-  }
-
   render() {
-    const project = this.project;
+    const project = this.state.project;
     const show = this.state.show;
 
     return (
       <div>
-        {project ?
+        {project && this.state.stories ?
           <div className={this.props.classes.headerProject}>
             <ProjectHeader
-              project={this.project}
+              project={project}
               user={this.props.user}
-              onClick={this.deleteProject}
+              onClick={() => this.props.deleteProject(this.project_id)}
             />
             <Button onClick={this.handleToggleStoryForm} variant="light">Create Story</Button>
             {show && 
               <Story header="Create Story">
-                <StoryForm button="Create" onSubmit={this.createStory}/>
+                <StoryForm button="Create" onSubmit={() => this.props.createStory(this.props.story, project)}/>
               </Story>
             }
-            <StoryContainer />
+            <StoryContainer project={project} stories={this.state.stories}/>
           </div> :
           <h2>There is no such Project</h2>
         }
@@ -91,26 +85,21 @@ class ProjectContainer extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  deleteProject: (id) => dispatch({ type: 'DELETE_PROJECT', id: id }),
-  addStory: (story) => dispatch({type: 'ADD_STORY', story: story}),
-  setStories: (stories) => dispatch({ type: 'SET_STORY_DATA', stories: stories }),
-})
-
 const mapStateToProps = (state) => {
   const selector = formValueSelector('story');
   const story = selector(state, 'description', 'stage')
 
   return {
-    story,
-    projects: state.project.projects,
-    stories: state.story.stories
+    story
   }
 }
 
 ProjectContainer.propTypes = {
   project: PropTypes.string,
-  user: PropTypes.number
+  user: PropTypes.number,
+  getStories: PropTypes.func,
+  deleteProject: PropTypes.func,
+  createStory: PropTypes.func
 };
 
-export default compose(connect(mapStateToProps, mapDispatchToProps), injectSheet(styles))(ProjectContainer);
+export default compose(connect(mapStateToProps, actions), injectSheet(styles))(ProjectContainer);

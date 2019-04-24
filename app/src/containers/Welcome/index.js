@@ -2,10 +2,10 @@ import PropTypes from "prop-types";
 import injectSheet from "react-jss";
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import axios from 'axios';
 
 import ModalLauncher from 'src/components/ModalLauncher';
 import styles from './styles';
+import actions from 'src/actions';
 
 class Welcome extends React.Component {
   state = {
@@ -13,20 +13,18 @@ class Welcome extends React.Component {
     user_id: null
   }
 
+  setUser = (user) => {
+    this.setState({user_email: user.email, user_id: user.id})
+  }
+
+  componentWillMount() {
+    this.props.subscribeGetUser(this.setUser);
+  }
+
   componentDidMount() {
-    this.getUser();
+    this.props.getUser(this.props.token);
   }
-
-  getUser = () => {
-    axios.get(`http://localhost:3001/api/v1/user?token=${this.props.token}`)
-      .then(response => {
-        this.setState({user_email: response.data.email, user_id: response.data.id})
-      })
-      .catch(function (error) {
-        window.alert(error.response.data.errors);
-      });
-  }
-
+ 
   render() {
   	return(
   	  <div className="welcome-wrapper">
@@ -37,12 +35,15 @@ class Welcome extends React.Component {
   }
 }
 
-const mapStateToProps = ({ session }) => ({
-  token: session.token
+const mapStateToProps = ({ session, user }) => ({
+  token: session.token,
+  user: user.user
 })
 
 Welcome.propTypes = {
-  classes: PropTypes.object
+  classes: PropTypes.object,
+  onGetUser: PropTypes.func,
+  emitGetUser: PropTypes.func
 };
 
-export default compose(connect(mapStateToProps), injectSheet(styles))(Welcome);
+export default compose(connect(mapStateToProps, actions), injectSheet(styles))(Welcome);

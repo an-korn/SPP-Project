@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
 import injectSheet from "react-jss";
-import axios from 'axios';
 
 import StyledButton from 'src/components/StyledButton';
 import ProjectButton from 'src/components/ProjectButton';

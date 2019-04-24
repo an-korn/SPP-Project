@@ -10,30 +10,20 @@ import 'bootstrap/dist/css/bootstrap.css';
 import Story from 'src/components/Story';
 import StoryForm from 'src/components/StoryForm';
 
+import actions from 'src/actions';
+
 class StoryContainer extends Component {
+  callback(data, props) {
+    props.getStories(props.project.id)
+  }
+
+  componentWillMount() {
+    this.props.subscribeDeleteStory(this.callback, this.props);
+    this.props.subscribeUpdateStory(this.callback, this.props);
+  }
+
   get body() {
     return this.props;
-  }
-
-  deleteStory = (id) => {
-    axios.delete(`http://localhost:3001/api/v1/story/${id}`)
-      .then(response => {
-        this.props.deleteStory(id);
-      })
-      .catch(function (error) {
-        window.alert(error.response.data.errors);
-      });
-  }
-
-  updateStory = (id) => {
-    const story = this.props.updatedStories.find(story => story.id === id);
-    axios.put(`http://localhost:3001/api/v1/story/${id}`, story)
-      .then(response => {
-        this.props.updateStory(response.data);
-      })
-      .catch(function (error) {
-        window.alert(error.response.data.errors);
-      });
   }
 
   render() {
@@ -46,10 +36,10 @@ class StoryContainer extends Component {
                 form={`story_${story.id}`}
                 button="Update"
                 update={true}
-                onSubmit={() => this.updateStory(story.id)}
+                onSubmit={() => this.props.updateStory(this.props.updatedStories, story.id)}
                 initialValues={{description: story.description, stage: story.stage, id: story.id}}
               />
-              <Button onClick={() => this.deleteStory(story.id)} variant="light">Delete</Button>
+              <Button onClick={() => this.props.deleteStory(story.id)} variant="light">Delete</Button>
             </div>
           </Story>
         )}
@@ -58,19 +48,22 @@ class StoryContainer extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  deleteStory: (id) => dispatch({ type: 'DELETE_STORY', id: id }),
-  updateStory: (story) => dispatch({type: 'UPDATE_STORY', story: story})
-})
+const mapStateToProps = (state, ownProps) => {
+  if (ownProps.stories) {
+    const selectors = ownProps.stories.map(story => formValueSelector(`story_${story.id}`));
+    const updatedStories = selectors.map(selector => selector(state, 'description', 'stage', 'id'))
 
-const mapStateToProps = (state) => {
-  const selectors = state.story.stories.map(story => formValueSelector(`story_${story.id}`));
-  const updatedStories = selectors.map(selector => selector(state, 'description', 'stage', 'id'))
-
-  return {
-    updatedStories: updatedStories,
-    stories: state.story.stories
+    return {
+      updatedStories: updatedStories
+    }
+  } else {
+    return {}
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(StoryContainer);
+StoryContainer.propTypes = {
+  deleteStory: PropTypes.func,
+  updateStory: PropTypes.func
+};
+
+export default connect(mapStateToProps, actions)(StoryContainer);

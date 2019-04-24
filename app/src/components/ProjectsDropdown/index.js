@@ -1,51 +1,40 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
 import injectSheet from "react-jss";
-import axios from 'axios';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 
 import Dropdown from 'src/components/Dropdown';
 import ProjectButton from 'src/components/ProjectButton';
 
+import actions from 'src/actions';
 import styles from "./styles";
 
 class ProjectsDropdown extends Component {
   state = {
     show: false,
-    user: null
+    user: null,
+    projects: null
+  }
+
+  setUser = (user) => {
+    this.setState({user: user.id})
+  }
+
+  setProjects = (projects) => {
+    this.setState({projects: projects})
+  }
+
+  componentWillMount() {
+    this.props.subscribeGetUser(this.setUser);
+    this.props.subscribeGetProjects(this.setProjects);
   }
 
   componentDidMount() {
-    this.getUser();
+    this.props.getUser(this.props.token);
     setTimeout(() => {
-      this.getProjects();
+      this.props.getProjects(this.state.user);
     }, 1000)
-    setTimeout(() => {
-      this.props.projects.map(project => {
-        this.getStories();
-      })
-    }, 500)
-  }
-
-  getUser = () => {
-    axios.get(`http://localhost:3001/api/v1/user?token=${this.props.token}`)
-      .then(response => {
-        this.setState({user: response.data.id})
-      })
-      .catch(function (error) {
-        window.alert(error.response.data.errors);
-      });
-  }
-
-  getProjects = () => {
-    axios.get(`http://localhost:3001/api/v1/project?user=${this.state.user}`)
-      .then(response => {
-        this.props.setProjects(response.data);
-      })
-      .catch(function (error) {
-        window.alert(error.response.data.errors);
-      });
   }
 
   onToggle = () => {this.setState({ show: !this.state.show })}
@@ -55,7 +44,7 @@ class ProjectsDropdown extends Component {
       <span>
         <a href="#projects" onClick={this.onToggle}>Projects</a>
         {this.state.show &&
-          <Dropdown items={this.props.projects}>
+          <Dropdown items={this.state.projects}>
             <div className={this.props.classes.createProject}>
               <span>Create new Project</span>
               <ProjectButton user={this.state.user} icon="md-add" />
@@ -67,10 +56,6 @@ class ProjectsDropdown extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  setProjects: (projects) => dispatch({ type: 'SET_PROJECT_DATA', projects: projects })
-})
-
 const mapStateToProps = ({ session, project }) => ({
   token: session.token,
   projects: project.projects
@@ -80,4 +65,4 @@ ProjectsDropdown.propTypes = {
   classes: PropTypes.object
 };
 
-export default compose(connect(mapStateToProps, mapDispatchToProps), injectSheet(styles))(ProjectsDropdown);
+export default compose(connect(mapStateToProps, actions), injectSheet(styles))(ProjectsDropdown);

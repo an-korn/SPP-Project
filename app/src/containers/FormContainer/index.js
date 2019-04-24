@@ -1,9 +1,9 @@
 import { formValueSelector } from 'redux-form';
 import { connect } from 'react-redux';
 import PropTypes from "prop-types";
-import axios from 'axios';
 
 import ProjectForm from 'src/components/ProjectForm';
+import actions from 'src/actions';
 
 const mapStateToProps = (state) => {
   const selector = formValueSelector('project');
@@ -14,12 +14,18 @@ const mapStateToProps = (state) => {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  updateProject: (project) => dispatch({ type: 'UPDATE_PROJECT', project: project }),
-  createProject: (project) => dispatch({type: 'ADD_PROJECT', project: project})
-})
-
 class FormContainer extends React.Component {
+  callback(data, props) {
+    props.getProjects(props.user)
+    props.getProject(data.id);
+    props.onClose();
+  }
+
+  componentWillMount() {
+    this.props.subscribeСreateProject(this.callback, this.props);
+    this.props.subscribeUpdateProject(this.callback, this.props);
+  }
+
   get project() {
     return this.props.project;
   }
@@ -32,30 +38,8 @@ class FormContainer extends React.Component {
     return this.props.update;
   }
 
-  createProject = () => {
-    axios.post(`http://localhost:3001/api/v1/project`, this.body)
-      .then(response => {
-        this.props.createProject(response.data);
-        this.props.onClose();
-      })
-      .catch(function (error) {
-        window.alert(error.response.data.errors);
-      });
-  }
-
-  updateProject = () => {
-    axios.put(`http://localhost:3001/api/v1/project/${this.props.project_id}`, this.body)
-      .then(response => {
-        this.props.updateProject(response.data);
-        this.props.onClose();
-      })
-      .catch(function (error) {
-        window.alert(error.response.data.errors);
-      });
-  }
-
   onProjectSubmit = () => {
-  	return this.update ? this.updateProject() : this.createProject();
+  	return this.update? this.props.updateProject(this.props.project_id, this.body) : this.props.createProject(this.body);
   }
 
   render() {
@@ -69,5 +53,5 @@ class FormContainer extends React.Component {
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  actions
 )(FormContainer);

@@ -4,17 +4,14 @@ const intitialState = {
 
 export default (state = intitialState, action) => {
   switch (action.type) {
-    case 'SET_STORY_DATA': {
+    case 'SET_STORY_DATA', 'SET_STORY_DATA_SUCCESS': {
       const {stories} = action
 
       return {
         stories: stories
       }
     }
-    case 'CLEAR_PROJECT_DATA': {
-      return intitialState;
-    }
-    case 'ADD_STORY': {
+    case 'ADD_STORY', 'ADD_STORY_SUCCESS': {
       const{story} = action
       const data = [...state.stories, story]
 
@@ -22,7 +19,7 @@ export default (state = intitialState, action) => {
         stories: data
       };
     }
-    case 'UPDATE_STORY': {
+    case 'UPDATE_STORY', 'UPDATE_STORY_SUCCESS': {
       const{story} = action
       const data = state.stories.map(existingStory => {
         if (existingStory.id === story.id) return story;
@@ -33,7 +30,7 @@ export default (state = intitialState, action) => {
         stories: data
       };
     }
-    case 'DELETE_STORY': {
+    case 'DELETE_STORY', 'DELETE_STORY_SUCCESS': {
       const{id} = action;
       const data = state.stories.filter(story => story.id != id);
 

@@ -8,6 +8,7 @@ import SessionReducer from './Session/reducer'
 import SessionSaga from './Session/saga'
 import ProjectReducer from './Project/reducer'
 import StoryReducer from './Story/reducer'
+import UserReducer from './User/reducer'
 
 // END imports
 
@@ -17,6 +18,7 @@ export default {
     session: SessionReducer,
     project: ProjectReducer,
     story: StoryReducer,
+    user: UserReducer
   },
   sagas: function* sagas() {
     yield all([
