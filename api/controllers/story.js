@@ -15,12 +15,14 @@ exports.get = function(io, data, action) {
 
 exports.add = function(io, data, action) {
   const {story, project} = data;
-  console.log(data)
   Story.create({description: story.description, stage: story.stage})
     .then(story => {
       Project.findByPk(parseInt(project))
         .then(project => {
-          story.setProject(project).then(_ => io.emit(action, story));
+          story.setProject(project).then(_ => {
+            io.emit(action, story)
+            io.broadcast.emit(action, story)
+          });
         })
         .catch(err => io.emit(action, {errors: "There is no such Project"}))
     })
@@ -31,7 +33,10 @@ exports.delete = function(io, data, action) {
   Story.findByPk(parseInt(id))
     .then(story => {
       if (!story) io.emit(action, {errors: "No such Story"});
-      story.destroy().then(_ =>  io.emit(action, story));
+      story.destroy().then(_ =>  {
+        io.emit(action, story)
+        io.broadcast.emit(action, story)
+      });
     })
 };
 

@@ -5,7 +5,7 @@ export default class socketAPI {
   socket;
 
   connect() {
-    this.socket = io.connect(host);
+    this.socket = io.connect(host, {forceNew: true});
     return new Promise((resolve, reject) => {
       this.socket.on('connect', () => resolve());
       this.socket.on('connect_error', (error) => reject(error));

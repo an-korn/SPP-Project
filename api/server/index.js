@@ -15,7 +15,7 @@ app.get(`${process.env.API_URL}/authentication`, require('../controllers/authent
 app.get(`${process.env.API_URL}/authentication/callback`, require('../controllers/authentication').callback);
 
 socketIO.on('connection', (socket) => {
-  console.log('socket is working');
+  console.log(`Socket ${socket.id} connected.`);
   require('../config/routes')(socket);
 });
 
