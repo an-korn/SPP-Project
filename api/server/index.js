@@ -2,24 +2,21 @@ require('dotenv').config();
 const express = require("express");
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const http = require('http');
-const socket = require('socket.io');
 const app = express();
-const server = http.createServer(app);
-const socketIO = socket.listen(server);
 
-app.use(bodyParser.json());
-app.use(cors({allowedOrigins: ['localhost:3000']}));
-
-app.get(`${process.env.API_URL}/authentication`, require('../controllers/authentication').get);
-app.get(`${process.env.API_URL}/authentication/callback`, require('../controllers/authentication').callback);
-
-socketIO.on('connection', (socket) => {
-  console.log(`Socket ${socket.id} connected.`);
-  require('../config/routes')(socket);
+app.use((req, res, next) => {
+  res.set({
+    'Access-Control-Allow-Origin'  : 'http://localhost:3000',
+    'Access-Control-Allow-Methods' : 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    "Access-Control-Allow-Headers" : "Authorization, Origin, X-Requested-With, Content-Type, Accept"
+  });
+  next();
 });
 
-server.listen(process.env.API_PORT, () =>{
-  console.log(`Server started on port ${server.address().port}`);
+app.use(bodyParser.json());
+require('../config/routes')(app);
+
+app.listen(process.env.API_PORT, () =>{
+  console.log(`Server started on port ${process.env.API_PORT}`);
 });
  

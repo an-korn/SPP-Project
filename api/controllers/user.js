@@ -1,9 +1,17 @@
 const {User} = require('../lib/sequelize');
 
-exports.getById = function(io, data, action) {
-  console.log(data);
-  const {token} = data;
-  User.findByToken(token)
-    .then(data => io.emit(action, data.dataValues))
-    .catch(err => io.emit(action, {error: {message: "There is no such User"}}))
+exports.getById = async ({token}, {startTime}) => {
+  try {
+    const user = await User.findByToken(token);
+    if(!user) throw "There is no such User";
+    const projects = await user.getProjects();
+
+    return {
+      id: user.id,
+      email: user.email,
+      projects
+    }
+  } catch(err) {
+  	throw err;
+  }
 };

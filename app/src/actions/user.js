@@ -1,16 +1,17 @@
-export const subscribeGetUser = (cb) => {
-  return {
-    type: 'socket',
-    types: ['SET_USER', 'SET_USER_SUCCESS', 'SET_USER_FAIL'],
-    promise: (socket) => socket.on('get_user', (data) => cb(data)),
-  }
-}
+import {xhr} from "../helpers/xhr";
 
-export function getUser(token) {
-  const message = { token };
-  return {
-    type: 'socket',
-    types: ['SET_USER', 'SET_USER_SUCCESS', 'SET_USER_FAIL'],
-    promise: (socket) => socket.emit('get_user', message),
+export const getUser = (query, token) => async dispatch => {
+  dispatch({type: "SET_USER"})
+  try {
+  	const variables = {token}
+    const data = await xhr.callApi({query, variables});
+    dispatch({
+      type: "SET_USER_SUCCESS",
+      user: data.data.getUser
+    })
+  } catch(err) {
+    dispatch({
+      type: "SET_USER_FAILURE"
+    })
   }
 }

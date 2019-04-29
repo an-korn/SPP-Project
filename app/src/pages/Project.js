@@ -5,31 +5,16 @@ import ProjectContainer from 'src/containers/ProjectContainer';
 import actions from 'src/actions';
 
 class ProjectPage extends Component {
-  state = {
-    user: null
-  }
-
-  setUser = (user) => {
-    this.setState({user: user.id})
-  }
-
-  componentWillMount() {
-    this.props.subscribeGetUser(this.setUser);
-  }
-
-  componentDidMount() {
-    this.props.getUser(this.props.token);
-  }
-
   render() {
   	return (
-      <ProjectContainer project={this.props.match.params.project} user={this.state.user} />
+      <ProjectContainer projectId={this.props.match.params.project} user={this.props.user} />
     )
   }
 }
 
-const mapStateToProps = ({ session }) => ({
-  token: session.token
+const mapStateToProps = ({ session, user }) => ({
+  token: session.token,
+  user: user.user
 })
 
 export default connect(mapStateToProps, actions)(ProjectPage)

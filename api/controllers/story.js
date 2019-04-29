@@ -1,50 +1,73 @@
 const {Story, Project} = require('../lib/sequelize');
 
-exports.get = function(io, data, action) {
-  const {project} = data;
-  Project.findByPk(parseInt(project))
-    .then(project => {
-      project.getStories()
-        .then(stories => {
-          const response = stories.map(story => story.dataValues)
-          io.emit(action, response)
-        })
-    })
-    .catch(err => io.emit(action, {errors: "There is no such Project"}))
+exports.get = async (data, {projectId}) => {
+  try {
+    const project = await Project.findByPk(parseInt(projectId))
+    if(!project) return {errors: "There is no such Project"};
+
+    const stories = await project.getStories();
+    const result = stories.map(story => story.dataValues);
+
+    return result;
+  } catch(err) {
+    throw err;
+  }
 };
 
-exports.add = function(io, data, action) {
-  const {story, project} = data;
-  Story.create({description: story.description, stage: story.stage})
-    .then(story => {
-      Project.findByPk(parseInt(project))
-        .then(project => {
-          story.setProject(project).then(_ => {
-            io.emit(action, story)
-            io.broadcast.emit(action, story)
-          });
-        })
-        .catch(err => io.emit(action, {errors: "There is no such Project"}))
-    })
+exports.add = async ({description, stage, projectId}, context) => {
+  try {
+    const project = await Project.findByPk(parseInt(projectId));
+    if(!project) throw "There is no such Project";
+
+    const story = await Story.create({description: description, stage: stage});
+    const result = await story.setProject(project);
+    const stories = await project.getStories();
+
+    return {
+      id: project.id,
+      name: project.name,
+      stories
+    };
+  } catch(err) {
+    throw err;
+  }
 };
 
-exports.delete = function(io, data, action) {
-  const {id} = data
-  Story.findByPk(parseInt(id))
-    .then(story => {
-      if (!story) io.emit(action, {errors: "No such Story"});
-      story.destroy().then(_ =>  {
-        io.emit(action, story)
-        io.broadcast.emit(action, story)
-      });
-    })
+exports.delete = async ({id}, context) => {
+  try{
+    const story = await Story.findByPk(parseInt(id));
+    if(!story) throw "There is no such Story";
+
+
+    const result = await story.destroy();
+    const project = await result.getProject();
+    const stories = await project.getStories();
+
+    return {
+      id: project.id,
+      name: project.name,
+      stories
+    };
+  } catch(err) {
+    throw err;
+  }
 };
 
-exports.put = function(io, data, action) {
-  const {description, stage, id} = data;
-  Story.findByPk(parseInt(id))
-    .then(story => {
-      if (!story) io.emit(action, {errors: "No such Story"});
-      story.update({description: description, stage: stage}).then(_ =>  io.emit(action, story));
-    })
+exports.put = async ({id, description, stage}, context) => {
+  try{
+    const story = await Story.findByPk(parseInt(id));
+    if(!story) throw "There is no such Story";
+
+    const result = await story.update({description: description, stage: stage});
+    const project = await result.getProject();
+    const stories = await project.getStories();
+
+    return {
+      id: project.id,
+      name: project.name,
+      stories
+    };
+  } catch(err) {
+    throw err;
+  }
 };

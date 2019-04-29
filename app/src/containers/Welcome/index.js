@@ -8,28 +8,36 @@ import styles from './styles';
 import actions from 'src/actions';
 
 class Welcome extends React.Component {
-  state = {
-    user_email: null,
-    user_id: null
-  }
-
-  setUser = (user) => {
-    this.setState({user_email: user.email, user_id: user.id})
-  }
-
   componentWillMount() {
-    this.props.subscribeGetUser(this.setUser);
+    this.props.getUser(this.getUserQuery, this.props.token);
   }
 
-  componentDidMount() {
-    this.props.getUser(this.props.token);
+  get userEmail() {
+    return this.props.user ? this.props.user.email : null
   }
+
+  get userId() {
+    return this.props.user ? this.props.user.id : null
+  }
+
+  getUserQuery = `
+    query GetUser($token: String!) {
+      getUser(token: $token) {
+        id
+        email
+        projects {
+          id
+          name
+        }
+      }
+    }
+  `
  
   render() {
   	return(
   	  <div className="welcome-wrapper">
-  	    <div className={this.props.classes.welcomeHeader}><h1>Welcome, {this.state.user_email}!</h1></div>
-	      <ModalLauncher user={this.state.user_id}/>
+  	    <div className={this.props.classes.welcomeHeader}><h1>Welcome, {this.userEmail}!</h1></div>
+	      <ModalLauncher user={this.userId}/>
       </div>
   	)
   }

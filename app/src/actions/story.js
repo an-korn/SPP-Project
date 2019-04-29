@@ -1,70 +1,56 @@
-import {emit, on} from "src/helpers/socket";
+import {xhr} from "../helpers/xhr";
 
-export const subscribeGetStories = (cb) => {
-  return {
-    type: 'socket',
-    types: ['SET_STORY_DATA', 'SET_STORY_DATA_SUCCESS', 'SET_STORY_DATA_FAIL'],
-    promise: (socket) => socket.on('get_stories', (data) => cb(data)),
+export const getStories = (query, token) => async dispatch => {
+  try {
+    const data = await xhr.callApi({query, token});
+    dispatch({
+      type: "SET_STORY_DATA",
+      stories: data.data.getStories
+    })
+  } catch(err) {
+
   }
 }
 
-export function getStories(project) {
-  const message = { project };
-  return {
-    type: 'socket',
-    types: ['SET_STORY_DATA', 'SET_STORY_DATA_SUCCESS', 'SET_STORY_DATA_FAIL'],
-    promise: (socket) => socket.emit('get_stories', message),
+export const createStory = (query, body, projectId) => async dispatch => {
+  dispatch({type: "SET_PROJECT"})
+  try {
+    const variables = {...body, projectId}
+    const data = await xhr.callApi({query, variables});
+    dispatch({
+      type: "SET_PROJECT_SUCCESS",
+      project: data.data.createStory
+    })
+  } catch(err) {
+    dispatch({type: "SET_PROJECT_FAILURE"})
   }
 }
 
-export const subscribeCreateStory = (cb) => {
-  return {
-    type: 'socket',
-    types: ['ADD_STORY', 'ADD_STORY_SUCCESS', 'ADD_STORY_FAIL'],
-    promise: (socket) => socket.on('add_story', (data) => cb(data)),
+export const deleteStory = (query, id) => async dispatch => {
+  dispatch({type: "SET_PROJECT"})
+  try {
+    const variables = {id}
+    const data = await xhr.callApi({query, variables});
+    dispatch({
+      type: "SET_PROJECT_SUCCESS",
+      project: data.data.deleteStory
+    })
+  } catch(err) {
+    dispatch({type: "SET_PROJECT_FAILURE"})
   }
 }
 
-export function createStory(story, project) {
-  const message = { story, project: project.id };
-  return {
-    type: 'socket',
-    types: ['ADD_STORY', 'ADD_STORY_SUCCESS', 'ADD_STORY_FAIL'],
-    promise: (socket) => socket.emit('add_story', message),
-  }
-}
-
-export const subscribeDeleteStory = (cb, props) => {
-  return {
-    type: 'socket',
-    types: ['DELETE_STORY', 'DELETE_STORY_SUCCESS', 'DELETE_STORY_FAIL'],
-    promise: (socket) => socket.on('delete_story', (data) => cb(data, props)),
-  }
-}
-
-export function deleteStory(id) {
-  const message = { id };
-  return {
-    type: 'socket',
-    types: ['DELETE_STORY', 'DELETE_STORY_SUCCESS', 'DELETE_STORY_FAIL'],
-    promise: (socket) => socket.emit('delete_story', message),
-  }
-}
-
-export const subscribeUpdateStory = (cb, props) => {
-  return {
-    type: 'socket',
-    types: ['UPDATE_STORY', 'UPDATE_STORY_SUCCESS', 'UPDATE_STORY_FAIL'],
-    promise: (socket) => socket.on('update_story', (data) => cb(data, props)),
-  }
-}
-
-export function updateStory(stories, id) {
+export const updateStory = (query, stories, id) => async dispatch => {
   const story = stories.find(story => story.id === id);
-  const message = story;
-  return {
-    type: 'socket',
-    types: ['UPDATE_STORY', 'UPDATE_STORY_SUCCESS', 'UPDATE_STORY_FAIL'],
-    promise: (socket) => socket.emit('update_story', message),
+  dispatch({type: "SET_PROJECT"})
+  try {
+    const variables = story
+    const data = await xhr.callApi({query, variables});
+    dispatch({
+      type: "SET_PROJECT_SUCCESS",
+      project: data.data.updateStory
+    })
+  } catch(err) {
+    dispatch({type: "SET_PROJECT_FAILURE"})
   }
 }

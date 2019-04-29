@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const conf = require('../../config/db');
-const UserModel = require('../../models/user');
+const UserModel = require('../../models/user').User;
 const ProjectModel = require('../../models/project');
 const StoryModel = require('../../models/story')
 

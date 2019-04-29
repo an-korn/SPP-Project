@@ -1,24 +1,74 @@
 const intitialState = {
-  projects: []
+  project: null,
+  projects: [],
+  isFetching: false
 };
 
 export default (state = intitialState, action) => {
   switch (action.type) {
-    case 'SET_PROJECT_DATA', 'SET_PROJECT_DATA_SUCCESS': {
+    case 'SET_PROJECT_DATA': {
+      return {
+        ...state,
+        isFetching: true
+      }
+    }
+    case 'SET_PROJECT_DATA_SUCCESS': {
       const {projects} = action
 
       return {
-        projects: projects
+        ...state,
+        projects: projects,
+        isFetching: false
+      }
+    }
+    case 'SET_PROJECT_DATA_FAILURE': {
+      return {
+        ...state,
+        isFetching: false
       }
     }
     case 'CLEAR_PROJECT_DATA': {
+      return {
+        ...state,
+        isFetching: true
+      };
+    }
+    case 'CLEAR_PROJECT_DATA_SUCCESS': {
       return intitialState;
+    }
+    case 'CLEAR_PROJECT_DATA_FAILURE': {
+      return {
+        ...state,
+        isFetching: false
+      };
+    }
+    case 'SET_PROJECT': {
+      return {
+        ...state,
+        isFetching: true
+      }
+    }
+    case 'SET_PROJECT_SUCCESS': {
+      const {project} = action
+
+      return {
+        ...state,
+        project: project,
+        isFetching: false
+      }
+    }
+    case 'SET_PROJECT_FAILURE': {
+      return {
+        ...state,
+        isFetching: false
+      }
     }
     case 'ADD_PROJECT', 'ADD_PROJECT_SUCCESS': {
       const{project} = action
       const data = [...state.projects, project]
 
       return {
+        ...state,
         projects: data
       };
     }
@@ -30,6 +80,7 @@ export default (state = intitialState, action) => {
       });
 
       return {
+        ...state,
         projects: data
       };
     }
@@ -38,6 +89,7 @@ export default (state = intitialState, action) => {
       const data = state.projects.filter(project => project.id != id);
 
       return {
+        ...state,
         projects: data
       };
     }

@@ -1,86 +1,69 @@
-import {emit, on} from "src/helpers/socket";
+import {xhr} from "../helpers/xhr";
 
-export const subscribeGetProjects = (cb) => {
-  return {
-    type: 'socket',
-    types: ['SET_PROJECT_DATA', 'SET_PROJECT_DATA_SUCCESS', 'SET_PROJECT_DATA_FAIL'],
-    promise: (socket) => socket.on('get_projects', (data) => cb(data)),
+export const getProjects = (query, token) => async dispatch => {
+  try {
+    const data = await xhr.callApi({query, token});
+    dispatch({
+      type: "SET_PROJECT_DATA",
+      projects: data.data.getProjects
+    })
+  } catch(err) {
+
   }
 }
 
-export function getProjects(user) {
-  const message = { user };
-  return {
-    type: 'socket',
-    types: ['SET_PROJECT_DATA', 'SET_PROJECT_DATA_SUCCESS', 'SET_PROJECT_DATA_FAIL'],
-    promise: (socket) => socket.emit('get_projects', message),
+export const getProject = (query, id) => async dispatch => {
+  dispatch({type: "SET_PROJECT"})
+  try {
+    const variables = {id}
+    const data = await xhr.callApi({query, variables});
+    dispatch({
+      type: "SET_PROJECT_SUCCESS",
+      project: data.data.getProject
+    })
+  } catch(err) {
+    dispatch({type: "SET_PROJECT_FAILURE"})
   }
 }
 
-export const subscribeGetProject = (cb) => {
-  return {
-    type: 'socket',
-    types: ['SET_PROJECT_DATA', 'SET_PROJECT_DATA_SUCCESS', 'SET_PROJECT_DATA_FAIL'],
-    promise: (socket) => socket.on('get_project', (data) => cb(data)),
+export const createProject = (query, userId, body) => async dispatch => {
+  dispatch({type: "SET_USER"})
+  try {
+    const variables = {userId, ...body}
+    const data = await xhr.callApi({query, variables});
+    dispatch({
+      type: "SET_USER_SUCCESS",
+      user: data.data.createProject
+    })
+  } catch(err) {
+    dispatch({type: "SET_USER_FAILURE"})
   }
 }
 
-export function getProject(id) {
-  const message = { id };
-  return {
-    type: 'socket',
-    types: ['SET_PROJECT_DATA', 'SET_PROJECT_DATA_SUCCESS', 'SET_PROJECT_DATA_FAIL'],
-    promise: (socket) => socket.emit('get_project', message),
+export const deleteProject = (query, id) => async dispatch => {
+  dispatch({type: "CLEAR_PROJECT_DATA"})
+  try {
+    const variables = {id}
+    const data = await xhr.callApi({query, variables});
+    dispatch({
+      type: "CLEAR_PROJECT_DATA_SUCCESS",
+      project: data.data.updateProject
+    })
+  } catch(err) {
+    dispatch({type: "CLEAR_PROJECT_DATA_FAILURE"})
   }
 }
 
-export const subscribeСreateProject = (cb, props) => {
-  return {
-    type: 'socket',
-    types: ['ADD_PROJECT', 'ADD_PROJECT_SUCCESS', 'ADD_PROJECT_FAIL'],
-    promise: (socket) => socket.on('add_project', (data) => cb(data, props)),
-  }
-}
-
-export function createProject(body) {
-  const message = body;
-  return {
-    type: 'socket',
-    types: ['ADD_PROJECT', 'ADD_PROJECT_SUCCESS', 'ADD_PROJECT_FAIL'],
-    promise: (socket) => socket.emit('add_project', message),
-  }
-}
-
-export const subscribeDeleteProject = (cb) => {
-  return {
-    type: 'socket',
-    types: ['DELETE_PROJECT', 'DELETE_PROJECT_SUCCESS', 'DELETE_PROJECT_FAIL'],
-    promise: (socket) => socket.on('delete_project', (data) => cb(data)),
-  }
-}
-
-export function deleteProject(project) {
-  const message = { id: project };
-  return {
-    type: 'socket',
-    types: ['DELETE_PROJECT', 'DELETE_PROJECT_SUCCESS', 'DELETE_PROJECT_FAIL'],
-    promise: (socket) => socket.emit('delete_project', message),
-  }
-}
-
-export const subscribeUpdateProject = (cb, props) => {
-  return {
-    type: 'socket',
-    types: ['DELETE_PROJECT', 'DELETE_PROJECT_SUCCESS', 'DELETE_PROJECT_FAIL'],
-    promise: (socket) => socket.on('update_project', (data) => cb(data, props)),
-  }
-}
-
-export function updateProject(id, body) {
-  const message = { id, name: body.project };
-  return {
-    type: 'socket',
-    types: ['UPDATE_PROJECT', 'UPDATE_PROJECT_SUCCESS', 'UPDATE_PROJECT_FAIL'],
-    promise: (socket) => socket.emit('update_project', message),
+export const updateProject = (query, id, body) => async dispatch => {
+  dispatch({type: "SET_PROJECT"})
+  try {
+    const variables = {...body, id}
+    const data = await xhr.callApi({query, variables});
+    dispatch({
+      type: "SET_PROJECT_SUCCESS",
+      project: data.data.updateProject
+    })
+  } catch(err) {
+    dispatch({type: "SET_PROJECT_FAILURE"})
   }
 }

@@ -12,39 +12,21 @@ import styles from "./styles";
 
 class ProjectsDropdown extends Component {
   state = {
-    show: false,
-    user: null,
-    projects: null
-  }
-
-  setUser = (user) => {
-    this.setState({user: user.id})
-  }
-
-  setProjects = (projects) => {
-    this.setState({projects: projects})
-  }
-
-  componentWillMount() {
-    this.props.subscribeGetUser(this.setUser);
-    this.props.subscribeGetProjects(this.setProjects);
-  }
-
-  componentDidMount() {
-    this.props.getUser(this.props.token);
-    setTimeout(() => {
-      this.props.getProjects(this.state.user);
-    }, 1000)
+    show: false
   }
 
   onToggle = () => {this.setState({ show: !this.state.show })}
+
+  get projects() {
+    return this.props.user ? this.props.user.projects : [];
+  }
 
   render() {
     return (
       <span>
         <a href="#projects" onClick={this.onToggle}>Projects</a>
         {this.state.show &&
-          <Dropdown items={this.state.projects}>
+          <Dropdown items={this.projects}>
             <div className={this.props.classes.createProject}>
               <span>Create new Project</span>
               <ProjectButton user={this.state.user} icon="md-add" />
@@ -56,9 +38,9 @@ class ProjectsDropdown extends Component {
   }
 }
 
-const mapStateToProps = ({ session, project }) => ({
+const mapStateToProps = ({ session, user, project }) => ({
   token: session.token,
-  projects: project.projects
+  user: user.user
 })
 
 ProjectsDropdown.propTypes = {

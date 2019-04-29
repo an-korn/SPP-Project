@@ -3,6 +3,8 @@
     "babel-preset-react-app",
   ],
   "plugins": [
+    "relay",
+
     ["module-resolver", {
       "alias": {
         "src": "./src",

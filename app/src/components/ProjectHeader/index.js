@@ -21,7 +21,7 @@ class ProjectHeader extends Component {
 
 ProjectHeader.propTypes = {
   project: PropTypes.object,
-  user: PropTypes.number,
+  user: PropTypes.object,
   onClick: PropTypes.func
 };
 

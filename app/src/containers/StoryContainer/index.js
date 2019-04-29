@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
 import injectSheet from "react-jss";
-import axios from 'axios';
 import { formValueSelector } from 'redux-form';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
@@ -13,18 +12,37 @@ import StoryForm from 'src/components/StoryForm';
 import actions from 'src/actions';
 
 class StoryContainer extends Component {
-  callback(data, props) {
-    props.getStories(props.project.id)
-  }
-
-  componentWillMount() {
-    this.props.subscribeDeleteStory(this.callback, this.props);
-    this.props.subscribeUpdateStory(this.callback, this.props);
-  }
-
   get body() {
     return this.props;
   }
+
+  updateStoryMutation = `
+    mutation UpdateStory($id: ID!, $description: String!, $stage: String) {
+      updateStory(id: $id, description: $description, stage: $stage) {
+        id
+        name
+        stories {
+          id
+          description
+          stage
+        }
+      }
+    }
+  `
+
+  deleteStoryMutation = `
+    mutation DeleteStory($id: ID!) {
+      deleteStory(id: $id) {
+        id
+        name
+        stories {
+          id
+          description
+          stage
+        }
+      }
+    }
+  `
 
   render() {
     return (
@@ -36,10 +54,10 @@ class StoryContainer extends Component {
                 form={`story_${story.id}`}
                 button="Update"
                 update={true}
-                onSubmit={() => this.props.updateStory(this.props.updatedStories, story.id)}
+                onSubmit={() => this.props.updateStory(this.updateStoryMutation, this.props.updatedStories, story.id)}
                 initialValues={{description: story.description, stage: story.stage, id: story.id}}
               />
-              <Button onClick={() => this.props.deleteStory(story.id)} variant="light">Delete</Button>
+              <Button onClick={() => this.props.deleteStory(this.deleteStoryMutation, story.id)} variant="light">Delete</Button>
             </div>
           </Story>
         )}

@@ -7,39 +7,83 @@ import actions from 'src/actions';
 
 const mapStateToProps = (state) => {
   const selector = formValueSelector('project');
-  const project = selector(state, 'projectName')
+  const projectInfo = selector(state, 'projectName')
 
   return {
-    project
+    projectInfo,
+    user: state.user.user,
+    project: state.project.project
   }
 }
 
 class FormContainer extends React.Component {
-  callback(data, props) {
-    props.getProjects(props.user)
-    props.getProject(data.id);
-    props.onClose();
-  }
-
-  componentWillMount() {
-    this.props.subscribeСreateProject(this.callback, this.props);
-    this.props.subscribeUpdateProject(this.callback, this.props);
-  }
-
-  get project() {
-    return this.props.project;
+  get projectInfo() {
+    return this.props.projectInfo;
   }
 
   get body() {
-  	return {project: this.project, user: this.props.user }
+  	return {name: this.projectInfo}
   }
 
   get update() {
     return this.props.update;
   }
 
+  createProjectMutation = `
+    mutation CreateProject($userId: ID!, $name: String!) {
+      createProject(userId: $userId, name: $name) {
+        id
+        email
+        projects {
+          id
+          name
+        }
+      }
+    }
+  `
+
+  updateProjectMutation = `
+    mutation UpdateProject($id: ID!, $name: String!) {
+      updateProject(id: $id, name: $name) {
+        id
+        name
+        stories {
+          id
+          description
+          stage
+        }
+      }
+    }
+  `
+
+  getProjectQuery = `
+    query GetProject($id: ID!) {
+      getProject(id: $id) {
+        id
+        name
+        stories {
+          id
+          description
+          stage
+        }
+      }
+    }
+  `
+
+  updateProject() {
+    this.props.updateProject(this.updateProjectMutation, this.props.project.id, this.body)
+    this.props.getProject(this.getProjectQuery, this.props.project.id)
+    this.props.onClose();
+  }
+
+  createProject() {
+    this.props.createProject(this.createProjectMutation, this.props.user.id, this.body)
+    this.props.getProject(this.getProjectQuery, this.props.project.id)
+    this.props.onClose();
+  }
+
   onProjectSubmit = () => {
-  	return this.update? this.props.updateProject(this.props.project_id, this.body) : this.props.createProject(this.body);
+  	return this.update? this.updateProject() : this.createProject();
   }
 
   render() {

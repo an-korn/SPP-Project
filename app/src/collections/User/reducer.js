@@ -1,14 +1,28 @@
 const intitialState = {
-  user: {}
+  user: {},
+  isFetching: false,
 };
 
 export default (state = intitialState, action) => {
   switch (action.type) {
-    case 'SET_USER', 'SET_USER_SUCCESS': {
+    case 'SET_USER': {
+      return {
+        ...state,
+        isFetching: true
+      }
+    }
+    case 'SET_USER_SUCCESS': {
       const {user} = action
 
       return {
-        user: user
+        user: user,
+        isFetching: false
+      }
+    }
+    case 'SET_USER_FAILURE': {
+      return{
+        ...state,
+        isFetching: false
       }
     }
     default:

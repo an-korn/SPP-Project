@@ -5,12 +5,13 @@ import { Router } from 'src/routes'
 
 import { configureStore } from 'src/collections/store'
 import * as serviceWorker from './serviceWorker'
-import SocketClient from "src/helpers/socket"
+//import SocketClient from "src/helpers/socket"
 
 import 'normalize.css'
 
-const socketClient = new SocketClient();
-const store = configureStore(socketClient)
+//const socketClient = new SocketClient();
+//const store = configureStore(socketClient)
+const store = configureStore()
 
 ReactDOM.render(
   pug`Provider(store=store): Router`,
@@ -21,4 +22,4 @@ ReactDOM.render(
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: http://bit.ly/CRA-PWA
 serviceWorker.unregister()
-socketClient.connect()
+//socketClient.connect()

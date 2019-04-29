@@ -17,66 +17,75 @@ import actions from 'src/actions';
 class ProjectContainer extends Component {
   state = {
     show: false,
-    project: null,
-    stories: null
-  }
-
-  callback = (data) => {
-    this.setState({project: null})
-  }
-
-  createCallback = (data) => {
-    this.props.getStories(this.project_id)
-  }
-
-  setProject = (project) => {
-    this.setState({project: project})
-  }
-
-  setStories = (stories) => {
-    this.setState({stories: stories})
-  }
-
-  componentWillMount() {
-    this.props.subscribeGetProject(this.setProject);
-    this.props.subscribeGetStories(this.setStories);
-    this.props.subscribeDeleteProject(this.callback);
-    this.props.subscribeCreateStory(this.createCallback);
   }
 
   componentDidMount() {
-    this.props.getProject(this.project_id)
-    setTimeout(() => {
-      this.props.getStories(this.project_id);
-    }, 1000)
+    this.props.getProject(this.getProjectQuery, this.props.projectId)
   }
 
   handleToggleStoryForm = () => {this.setState({ show: !this.state.show })}
 
-  get project_id() {
-    return this.props.project;
+  getProjectQuery = `
+    query GetProject($id: ID!) {
+      getProject(id: $id) {
+        id
+        name
+        stories {
+          id
+          description
+          stage
+        }
+      }
+    }
+  `
+
+  deleteProjectMutation = `
+    mutation DeleteProject($id: ID!) {
+      deleteProject(id: $id) {
+        id
+        name
+      }
+    }
+  `
+
+  createStoryMutation = `
+    mutation CreateStory($description: String!, $stage: String, $projectId: ID!) {
+      createStory(description: $description, stage: $stage, projectId: $projectId) {
+        id
+        name
+        stories {
+          id
+          description
+          stage
+        }
+      }
+    }
+  `
+
+  get projectId() {
+    return this.props.projectId;
   }
 
   render() {
-    const project = this.state.project;
+    const project = this.props.project;
     const show = this.state.show;
 
     return (
       <div>
-        {project && this.state.stories ?
+        {project && project.stories ?
           <div className={this.props.classes.headerProject}>
             <ProjectHeader
               project={project}
               user={this.props.user}
-              onClick={() => this.props.deleteProject(this.project_id)}
+              onClick={() => this.props.deleteProject(this.deleteProjectMutation, this.projectId)}
             />
             <Button onClick={this.handleToggleStoryForm} variant="light">Create Story</Button>
             {show && 
               <Story header="Create Story">
-                <StoryForm button="Create" onSubmit={() => this.props.createStory(this.props.story, project)}/>
+                <StoryForm button="Create" onSubmit={() => this.props.createStory(this.createStoryMutation, this.props.story, this.projectId)}/>
               </Story>
             }
-            <StoryContainer project={project} stories={this.state.stories}/>
+            <StoryContainer project={this.projectId} stories={project.stories}/>
           </div> :
           <h2>There is no such Project</h2>
         }
@@ -88,15 +97,16 @@ class ProjectContainer extends Component {
 const mapStateToProps = (state) => {
   const selector = formValueSelector('story');
   const story = selector(state, 'description', 'stage')
+  const project = state.project.project
 
   return {
-    story
+    story,
+    project
   }
 }
 
 ProjectContainer.propTypes = {
-  project: PropTypes.string,
-  user: PropTypes.number,
+  user: PropTypes.object,
   getStories: PropTypes.func,
   deleteProject: PropTypes.func,
   createStory: PropTypes.func

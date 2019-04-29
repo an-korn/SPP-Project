@@ -4,12 +4,12 @@ import {
   compose,
   combineReducers,
 } from 'redux'
-import thunk from 'redux-thunk'
+import thunkMiddleware from 'redux-thunk'
 import createSagaMiddleware from 'redux-saga'
 import { reducer as formReducer } from 'redux-form'
 
 import collections from 'src/collections'
-import socketMiddleware from 'src/helpers/socketMiddleware'
+//import socketMiddleware from 'src/helpers/socketMiddleware'
 
 const isServer = typeof window === 'undefined'
 
@@ -24,8 +24,10 @@ const rootReducer = combineReducers({
 })
 const sagaMiddleware = createSagaMiddleware()
 
-export const configureStore = (socketClient, initialState = {}) => {
-  const enhancer = composeEnhancers(applyMiddleware(sagaMiddleware, socketMiddleware(socketClient)))
+//export const configureStore = (socketClient, initialState = {}) => {
+export const configureStore = (initialState = {}) => {
+  //const enhancer = composeEnhancers(applyMiddleware(sagaMiddleware, socketMiddleware(socketClient)))
+  const enhancer = composeEnhancers(applyMiddleware(sagaMiddleware, thunkMiddleware))
   const store = createStore(rootReducer, initialState, enhancer)
 
   store.runSagaTask = () => {
